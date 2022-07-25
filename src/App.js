@@ -5,6 +5,7 @@ import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import BlogsPage from './Pages/Blogs';
 import PostBlog from './Pages/PostBlog';
+import BlogManager from './Pages/BlogManager';
 
 const urlEndpoint = 'http://localhost:4000';
 
@@ -19,10 +20,16 @@ function App() {
 	const [filteredValue, setFilteredValue] = useState('');
 	const [limit, setLimit] = useState(10);
 	const [page, setPage] = useState(1);
+	const [adminBlogList, setAdminBlogList] = useState({
+		message: []
+	});
+	const [adminBlogsLoading, setAdminBlogsLoading] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
 
 	// post blog here
 	const blogSubmit = async (blog) => {
 		console.log(blog, 'blog here');
+		setIsLoading(true)
 		const url = `${urlEndpoint}/blogs/blog-submit`;
 		const response = await fetch(url, {
 			method: 'POST',
@@ -33,6 +40,17 @@ function App() {
 			body: JSON.stringify(blog),
 		});
 		const responseJSON = await response.json();
+		setIsLoading(false)
+	};
+
+	const deleteBlog = async (blogId) => {
+		setAdminBlogsLoading(true)
+		const url = `${urlEndpoint}/admin/delete-blog/${blogId}`
+		const response = await fetch(url, {
+			method: 'DELETE'
+		});
+		const responseJSON = await response.json();
+		setAdminBlogsLoading(false)
 	};
 
 	useEffect(() => {
@@ -45,9 +63,23 @@ function App() {
 			return;
 		};
 		fetchData();
-	}, [sortField, sortOrder, filteredField, filteredValue, limit, page]);
+	}, [sortField, sortOrder, filteredField, filteredValue, limit, page, isLoading]);
+
+	useEffect(() => {
+		const fetchAdminBlogList = async () => {
+			const apiResponse = await fetch(`${urlEndpoint}/admin/blog-list`);
+			const json = await apiResponse.json();
+			console.log("fetchAdminBlogList ", json)
+			setAdminBlogList(json);
+			return json;
+		}
+		fetchAdminBlogList()
+	}, [adminBlogsLoading]);
+
 	return (
 		<div className='App'>
+
+
 			<Routes>
 				<Route
 					index
@@ -70,11 +102,14 @@ function App() {
 						/>
 					}
 				></Route>
-
 				<Route
 					path='/blog-submit'
 					element={<PostBlog blogSubmit={blogSubmit} />}
 				></Route>
+				<Route path="/blog-manager" element={<BlogManager
+					adminBlogList={adminBlogList}
+					deleteBlog={deleteBlog}
+				/>}></Route>
 			</Routes>
 		</div>
 	);

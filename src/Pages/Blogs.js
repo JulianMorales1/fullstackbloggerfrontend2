@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Link } from 'react-router-dom'
+
 /*
 
 	const [sortField, setSortField] = useState('');
@@ -25,16 +27,13 @@ const BlogsPage = ({
 	page,
 	setPage,
 }) => {
+	console.log("server message ", message)
 	return (
 		<div>
 			<h1>Blogs Page</h1>
-			<p>
-				Server Message:
-				{message != null &&
-					message.map((blog) => {
-						return <>{blog.title}</>;
-					})}
-			</p>
+			<Link to='/blog-submit'>Submit Blog</Link>
+			<Link to='/blog-manager'>Blogs manager</Link>
+
 			<div className='blogs-input'>
 				<select onChange={(event) => setSortField(event.target.value)}>
 					<option value='title'>Title</option>
@@ -68,6 +67,14 @@ const BlogsPage = ({
 					onChange={(event) => setPage(event.target.value)}
 				/>
 			</div>
+			<h2>
+				Server Message:
+
+			</h2>
+			{message != null &&
+				message.map((blog) => {
+					return (<div><h3>{blog.title}</h3><p>{blog.text}</p></div>);
+				})}
 		</div>
 	);
 };
